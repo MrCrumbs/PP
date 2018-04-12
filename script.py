@@ -27,10 +27,9 @@ def parse_arguments():
             return args
         else:
             print("No such directory. Exiting...")
-            quit()
     else:
         print("You must either enter --dir or --upload arguments")
-        quit()
+    quit()
 
 
 # connect to inbox and download messages
