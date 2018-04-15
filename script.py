@@ -64,16 +64,21 @@ def login_and_download(username, password, report):
 # iterate through emails and store them appropriately
 def save_emails(inbox, path, report):
     index = 0
+    emails_stored = 0
     for email in inbox.messages:
         # create filename for email
         filename = prepare_filename(index, email)
         index += 1
         # either upload to s3 or store locally
-        if args.upload:
-            upload(email, filename, report, index)
-        else:
-            save_locally(email, filename, path)
-    print("Done. Stored " + str(index) + " emails.")
+        try:
+            if args.upload:
+                upload(email, filename, report, index)
+            else:
+                save_locally(email, filename, path)
+            emails_stored += 1
+        except:
+            pass
+    print("Done. Stored " + str(emails_stored) + " emails.")
 
 
 # create filename for email - (filename = [index]_[DateTimeReceived])
@@ -85,8 +90,13 @@ def prepare_filename(index, email):
 
 # store email in specified directory
 def save_locally(email, filename, path):
-    with open(path + "/" + filename + ".txt", "w") as outfile:
-         json.dump(email.json, outfile)
+    try:
+        with open(path + "/" + filename + " .txt", "w") as outfile:
+            json.dump(email.json, outfile)
+    except Exception as e:
+        print("Error writing " + filename + " to file.\n" + 
+              "Error message: " + str(e) + "\nMoving on...")
+        raise
 
 
 # upload email to s3
@@ -108,9 +118,8 @@ def upload(email, filename, report, index):
         quit()
     except (botocore.exceptions.EndpointConnectionError,
             botocore.vendored.requests.exceptions.ConnectionError):
-        print("Connection error during upload. Exiting...")
-        quit()
-
+        print("Connection error during upload of " + filename + ". Moving on...")
+        raise
 
 # generate email report, for now without s3 link
 def generate_report(emails):
