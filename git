@@ -1,5 +1,0 @@
-git add *
-git commit -m "Step 3 done"
-git push origin master
-git tag -a v3.0 -m "Step 3 done"
-git push origin v3.0
